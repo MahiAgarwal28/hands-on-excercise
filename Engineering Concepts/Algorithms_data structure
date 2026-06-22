@@ -1,0 +1,661 @@
+// Exercise 1: Inventory Management System
+
+using System;
+using System.Collections.Generic;
+
+namespace InventorySystem
+{
+    public class Product
+    {
+        public int ProductId { get; set; }
+        public string ProductName { get; set; }
+        public int Quantity { get; set; }
+        public double Price { get; set; }
+
+        public Product(int productId, string productName, int quantity, double price)
+        {
+            ProductId = productId;
+            ProductName = productName;
+            Quantity = quantity;
+            Price = price;
+        }
+    }
+
+    public class InventoryManager
+    {
+        private readonly Dictionary<int, Product> _inventory = new Dictionary<int, Product>();
+
+        public bool AddProduct(Product product)
+        {
+            if (product == null || _inventory.ContainsKey(product.ProductId))
+            {
+                return false;
+            }
+            _inventory.Add(product.ProductId, product);
+            return true;
+        }
+
+        public bool UpdateProduct(int id, string newName, int newQuantity, double newPrice)
+        {
+            if (!_inventory.ContainsKey(id))
+            {
+                return false;
+            }
+            
+            _inventory[id].ProductName = newName;
+            _inventory[id].Quantity = newQuantity;
+            _inventory[id].Price = newPrice;
+            return true;
+        }
+
+        public bool DeleteProduct(int id)
+        {
+            return _inventory.Remove(id);
+        }
+
+        public void DisplayAll()
+        {
+            foreach (var item in _inventory.Values)
+            {
+                Console.WriteLine($"ID: {item.ProductId}, Name: {item.ProductName}, Qty: {item.Quantity}, Price: {item.Price}");
+            }
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            InventoryManager manager = new InventoryManager();
+            
+            manager.AddProduct(new Product(1, "Laptop", 10, 85000.00));
+            manager.AddProduct(new Product(2, "Mouse", 50, 1200.00));
+            
+            manager.UpdateProduct(1, "Gaming Laptop", 8, 90000.00);
+            manager.DeleteProduct(2);
+            
+            manager.DisplayAll();
+        }
+    }
+}
+
+//Exercise 2: E-commerce Platform Search Function
+
+using System;
+
+namespace EcommerceSearchSystem
+{
+    public class Product : IComparable<Product>
+    {
+        public int ProductId { get; set; }
+        public string ProductName { get; set; }
+        public string Category { get; set; }
+
+        public Product(int productId, string productName, string category)
+        {
+            ProductId = productId;
+            ProductName = productName;
+            Category = category;
+        }
+
+        public int CompareTo(Product other)
+        {
+            if (other == null) return 1;
+            return this.ProductId.CompareTo(other.ProductId);
+        }
+    }
+
+    public class SearchAlgorithms
+    {
+        public static Product LinearSearch(Product[] products, int targetId)
+        {
+            for (int i = 0; i < products.Length; i++)
+            {
+                if (products[i].ProductId == targetId)
+                {
+                    return products[i]; 
+                }
+            }
+            return null; 
+        }
+
+        public static Product BinarySearch(Product[] sortedProducts, int targetId)
+        {
+            int left = 0;
+            int right = sortedProducts.Length - 1;
+
+            while (left <= right)
+            {
+                int mid = left + (right - left) / 2;
+
+                if (sortedProducts[mid].ProductId == targetId)
+                {
+                    return sortedProducts[mid]; 
+                }
+                
+                if (sortedProducts[mid].ProductId < targetId)
+                {
+                    left = mid + 1; 
+                }
+                else
+                {
+                    right = mid - 1; 
+                }
+            }
+            return null; 
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Product[] inventory = new Product[]
+            {
+                new Product(105, "Wireless Mouse", "Electronics"),
+                new Product(101, "Mechanical Keyboard", "Electronics"),
+                new Product(108, "USB-C Cable", "Accessories"),
+                new Product(103, "Gaming Monitor", "Electronics")
+            };
+
+            int searchId = 103;
+
+            Product resultLinear = SearchAlgorithms.LinearSearch(inventory, searchId);
+            Console.WriteLine(resultLinear != null ? $"Linear Search Found: {resultLinear.ProductName}" : "Not Found");
+
+            Array.Sort(inventory); 
+
+            Product resultBinary = SearchAlgorithms.BinarySearch(inventory, searchId);
+            Console.WriteLine(resultBinary != null ? $"Binary Search Found: {resultBinary.ProductName}" : "Not Found");
+        }
+    }
+}
+
+//Exercise 3: Sorting Customer Orders
+ 
+using System;
+
+namespace OrderSortingSystem
+{
+    public class Order
+    {
+        public int OrderId { get; set; }
+        public string CustomerName { get; set; }
+        public double TotalPrice { get; set; }
+
+        public Order(int orderId, string customerName, double totalPrice)
+        {
+            OrderId = orderId;
+            CustomerName = customerName;
+            TotalPrice = totalPrice;
+        }
+    }
+
+    public class OrderSorter
+    {
+        public static void BubbleSort(Order[] orders)
+        {
+            int n = orders.Length;
+            for (int i = 0; i < n - 1; i++)
+            {
+                for (int j = 0; j < n - i - 1; j++)
+                {
+                    if (orders[j].TotalPrice > orders[j + 1].TotalPrice)
+                    {
+                        Order temp = orders[j];
+                        orders[j] = orders[j + 1];
+                        orders[j + 1] = temp;
+                    }
+                }
+            }
+        }
+
+        public static void QuickSort(Order[] orders, int low, int high)
+        {
+            if (low < high)
+            {
+                int pivotIndex = Partition(orders, low, high);
+
+                QuickSort(orders, low, pivotIndex - 1);
+                QuickSort(orders, pivotIndex + 1, high);
+            }
+        }
+
+        private static int Partition(Order[] orders, int low, int high)
+        {
+            double pivot = orders[high].TotalPrice;
+            int i = (low - 1);
+
+            for (int j = low; j < high; j++)
+            {
+                if (orders[j].TotalPrice <= pivot)
+                {
+                    i++;
+                    Order temp = orders[i];
+                    orders[i] = orders[j];
+                    orders[j] = temp;
+                }
+            }
+
+            Order tempPivot = orders[i + 1];
+            orders[i + 1] = orders[high];
+            orders[high] = tempPivot;
+
+            return i + 1;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Order[] ordersForBubble = new Order[]
+            {
+                new Order(1, "Alice", 250.50),
+                new Order(2, "Bob", 120.00),
+                new Order(3, "Charlie", 450.00),
+                new Order(4, "David", 80.25)
+            };
+
+            Order[] ordersForQuick = (Order[])ordersForBubble.Clone();
+
+            Console.WriteLine("--- Bubble Sort Results ---");
+            OrderSorter.BubbleSort(ordersForBubble);
+            PrintOrders(ordersForBubble);
+
+            Console.WriteLine("\n--- Quick Sort Results ---");
+            OrderSorter.QuickSort(ordersForQuick, 0, ordersForQuick.Length - 1);
+            PrintOrders(ordersForQuick);
+        }
+
+        static void PrintOrders(Order[] orders)
+        {
+            foreach (var order in orders)
+            {
+                Console.WriteLine($"ID: {order.OrderId} | Customer: {order.CustomerName} | Total: ${order.TotalPrice}");
+            }
+        }
+    }
+}
+
+//Exercise 4: Employee Management System
+
+using System;
+
+namespace EmployeeManagementSystem
+{
+    public class Employee
+    {
+        public int EmployeeId { get; set; }
+        public string Name { get; set; }
+        public string Position { get; set; }
+        public double Salary { get; set; }
+
+        public Employee(int employeeId, string name, string position, double salary)
+        {
+            EmployeeId = employeeId;
+            Name = name;
+            Position = position;
+            Salary = salary;
+        }
+    }
+
+    public class EmployeeRegistry
+    {
+        private Employee[] _employees;
+        private int _count;
+
+        public EmployeeRegistry(int capacity)
+        {
+            _employees = new Employee[capacity];
+            _count = 0;
+        }
+
+        public bool AddEmployee(Employee emp)
+        {
+            if (_count >= _employees.Length)
+            {
+                Console.WriteLine("Registry Error: Management system capacity full.");
+                return false;
+            }
+            _employees[_count] = emp;
+            _count++;
+            return true;
+        }
+
+        public Employee SearchEmployee(int id)
+        {
+            for (int i = 0; i < _count; i++)
+            {
+                if (_employees[i].EmployeeId == id)
+                {
+                    return _employees[i];
+                }
+            }
+            return null;
+        }
+
+        public void TraverseEmployees()
+        {
+            Console.WriteLine("\n--- Employee Directory ---");
+            if (_count == 0) Console.WriteLine("No records found.");
+            
+            for (int i = 0; i < _count; i++)
+            {
+                Employee emp = _employees[i];
+                Console.WriteLine($"ID: {emp.EmployeeId} | Name: {emp.Name} | Position: {emp.Position} | Salary: ${emp.Salary}");
+            }
+        }
+
+        public bool DeleteEmployee(int id)
+        {
+            for (int i = 0; i < _count; i++)
+            {
+                if (_employees[i].EmployeeId == id)
+                {
+                    for (int j = i; j < _count - 1; j++)
+                    {
+                        _employees[j] = _employees[j + 1];
+                    }
+                    _employees[_count - 1] = null;
+                    _count--;
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            EmployeeRegistry registry = new EmployeeRegistry(500);
+
+            registry.AddEmployee(new Employee(1001, "Amit Sharma", "Senior Engineer", 95000));
+            registry.AddEmployee(new Employee(1002, "Priya Patel", "Product Manager", 120000));
+            registry.AddEmployee(new Employee(1003, "Rohan Das", "QA Lead", 85000));
+
+            registry.TraverseEmployees();
+
+            Employee searched = registry.SearchEmployee(1002);
+            Console.WriteLine(searched != null ? $"\nSearch Match: {searched.Name}" : "\nEmployee Not Found");
+
+            Console.WriteLine("\nDeleting employee 1002...");
+            registry.DeleteEmployee(1002);
+
+            registry.TraverseEmployees();
+        }
+    }
+}
+
+//Exercise 5: Task Management System
+
+using System;
+
+namespace TaskManagementSystem
+{
+    public class Task
+    {
+        public int TaskId { get; set; }
+        public string TaskName { get; set; }
+        public string Status { get; set; }
+
+        public Task(int taskId, string taskName, string status)
+        {
+            TaskId = taskId;
+            TaskName = taskName;
+            Status = status;
+        }
+    }
+
+    public class Node
+    {
+        public Task Data { get; set; }
+        public Node Next { get; set; }
+
+        public Node(Task task)
+        {
+            Data = task;
+            Next = null;
+        }
+    }
+
+    public class TaskLinkedList
+    {
+        private Node head = null;
+
+        public void AddTask(Task task)
+        {
+            Node newNode = new Node(task);
+            if (head == null)
+            {
+                head = newNode;
+                return;
+            }
+
+            Node current = head;
+            while (current.Next != null)
+            {
+                current = current.Next;
+            }
+            current.Next = newNode;
+        }
+
+        public Task SearchTask(int id)
+        {
+            Node current = head;
+            while (current != null)
+            {
+                if (current.Data.TaskId == id)
+                {
+                    return current.Data;
+                }
+                current = current.Next;
+            }
+            return null; 
+        }
+
+        public void TraverseTasks()
+        {
+            Console.WriteLine("\n--- Task Management List ---");
+            if (head == null)
+            {
+                Console.WriteLine("No active tasks found.");
+                return;
+            }
+
+            Node current = head;
+            while (current != null)
+            {
+                Console.WriteLine($"ID: {current.Data.TaskId} | Task: {current.Data.TaskName} | Status: {current.Data.Status}");
+                current = current.Next;
+            }
+        }
+
+        public bool DeleteTask(int id)
+        {
+            if (head == null) return false;
+
+            if (head.Data.TaskId == id)
+            {
+                head = head.Next;
+                return true;
+            }
+
+            Node current = head;
+            while (current.Next != null)
+            {
+                if (current.Next.Data.TaskId == id)
+                {
+                    current.Next = current.Next.Next;
+                    return true;
+                }
+                current = current.Next;
+            }
+            return false;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            TaskLinkedList trackList = new TaskLinkedList();
+
+            trackList.AddTask(new Task(1, "Configure SQL Database", "Completed"));
+            trackList.AddTask(new Task(2, "Develop API Endpoints", "In Progress"));
+            trackList.AddTask(new Task(3, "Write Unit Tests", "Pending"));
+
+            trackList.TraverseTasks();
+
+            Task found = trackList.SearchTask(2);
+            Console.WriteLine(found != null ? $"\nSearch Found: {found.TaskName}" : "\nTask Not Found");
+
+            Console.WriteLine("\nDeleting Task 2...");
+            trackList.DeleteTask(2);
+
+            trackList.TraverseTasks();
+        }
+    }
+}
+
+//Exercise 6: Library Management System
+
+using System;
+
+namespace LibraryManagementSystem
+{
+    public class Book : IComparable<Book>
+    {
+        public int BookId { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+
+        public Book(int bookId, string title, string author)
+        {
+            BookId = bookId;
+            Title = title;
+            Author = author;
+        }
+
+        public int CompareTo(Book other)
+        {
+            if (other == null) return 1;
+            return string.Compare(this.Title, other.Title, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    public class SearchEngine
+    {
+        public static Book LinearSearch(Book[] books, string targetTitle)
+        {
+            for (int i = 0; i < books.Length; i++)
+            {
+                if (string.Equals(books[i].Title, targetTitle, StringComparison.OrdinalIgnoreCase))
+                {
+                    return books[i];
+                }
+            }
+            return null;
+        }
+
+        public static Book BinarySearch(Book[] sortedBooks, string targetTitle)
+        {
+            int left = 0;
+            int right = sortedBooks.Length - 1;
+
+            while (left <= right)
+            {
+                int mid = left + (right - left) / 2;
+                
+                int comparison = string.Compare(sortedBooks[mid].Title, targetTitle, StringComparison.OrdinalIgnoreCase);
+
+                if (comparison == 0)
+                {
+                    return sortedBooks[mid]; 
+                }
+                
+                if (comparison < 0)
+                {
+                    left = mid + 1; 
+                }
+                else
+                {
+                    right = mid - 1;
+                }
+            }
+            return null;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Book[] library = new Book[]
+            {
+                new Book(101, "The C# Playbook", "John Doe"),
+                new Book(102, "Algorithms Demystified", "Jane Smith"),
+                new Book(103, "Clean Code Architecture", "Robert Martin"),
+                new Book(104, "Database Systems Guide", "Alan Turing")
+            };
+
+            string searchTitle = "Clean Code Architecture";
+
+            Book resultLinear = SearchEngine.LinearSearch(library, searchTitle);
+            Console.WriteLine(resultLinear != null ? $"Linear Search Found: {resultLinear.Title} by {resultLinear.Author}" : "Book not found.");
+
+            Array.Sort(library);
+
+            Book resultBinary = SearchEngine.BinarySearch(library, searchTitle);
+            Console.WriteLine(resultBinary != null ? $"Binary Search Found: {resultBinary.Title} by {resultBinary.Author}" : "Book not found.");
+        }
+    }
+}
+
+//Exercise 7: Financial Forecasting
+
+using System;
+
+namespace FinancialForecastingSystem
+{
+    public class ForecastingEngine
+    {
+        public static double CalculateFutureValueRecursive(double presentValue, double growthRate, int years)
+        {
+            if (years <= 0)
+            {
+                return presentValue;
+            }
+
+            double valueForPreviousYear = CalculateFutureValueRecursive(presentValue, growthRate, years - 1);
+            return valueForPreviousYear * (1 + growthRate);
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            double initialInvestment = 10000.00; 
+            double annualGrowthRate = 0.05;      
+            int forecastYears = 10;              
+
+            double futureValue = ForecastingEngine.CalculateFutureValueRecursive(initialInvestment, annualGrowthRate, forecastYears);
+
+            Console.WriteLine("--- Financial Forecasting Result ---");
+            Console.WriteLine($"Initial Investment : ${initialInvestment:F2}");
+            Console.WriteLine($"Annual Growth Rate : {annualGrowthRate * 100}%");
+            Console.WriteLine($"Forecast Period    : {forecastYears} Years");
+            Console.WriteLine($"Predicted Value    : ${futureValue:F2}");
+        }
+    }
+}
+
+
+
+
+
+
+

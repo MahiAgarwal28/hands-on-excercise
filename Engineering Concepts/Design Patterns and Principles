@@ -1,0 +1,998 @@
+// Exercise 1: Implementing the Singleton Pattern
+
+using System;
+
+namespace SingletonPatternExample
+{
+    public class Logger
+    {
+        private static readonly Lazy<Logger> _instance = new Lazy<Logger>(() => new Logger());
+
+        private Logger()
+        {
+            Console.WriteLine("[System] Logger Instance Initialized.");
+        }
+
+        public static Logger GetInstance()
+        {
+            return _instance.Value;
+        }
+
+        public void Log(string message)
+        {
+            Console.WriteLine($"[LOG] {DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Singleton Pattern Implementation ---");
+
+            Logger loggerInstance1 = Logger.GetInstance();
+            Logger loggerInstance2 = Logger.GetInstance();
+
+            loggerInstance1.Log("User login event triggered.");
+            loggerInstance2.Log("Database connection established successfully.");
+
+            bool areIdentical = ReferenceEquals(loggerInstance1, loggerInstance2);
+
+            Console.WriteLine("\n--- Singleton Verification Results ---");
+            Console.WriteLine($"Reference 1 Memory HashCode: {loggerInstance1.GetHashCode()}");
+            Console.WriteLine($"Reference 2 Memory HashCode: {loggerInstance2.GetHashCode()}");
+            Console.WriteLine($"Are both logger instances completely identical? {areIdentical}");
+
+            if (areIdentical)
+            {
+                Console.WriteLine("\nSUCCESS: The Logger class strictly enforces the Singleton design pattern.");
+            }
+            else
+            {
+                Console.WriteLine("\nFAILURE: Multiple instances found.");
+            }
+        }
+    }
+}
+
+//Exercise 2: Implementing the Factory Method Pattern
+
+using System;
+
+namespace FactoryMethodPatternExample
+{
+    public interface IDocument
+    {
+        void Open();
+        void Close();
+    }
+
+    public class WordDocument : IDocument
+    {
+        public void Open() => Console.WriteLine("Opening Word Document (.docx)... Loading layout engines.");
+        public void Close() => Console.WriteLine("Saving metadata and closing Word Document.");
+    }
+
+    public class PdfDocument : IDocument
+    {
+        public void Open() => Console.WriteLine("Opening PDF Document (.pdf)... Rendering vector objects.");
+        public void Close() => Console.WriteLine("Releasing read-locks and closing PDF Document.");
+    }
+
+    public class ExcelDocument : IDocument
+    {
+        public void Open() => Console.WriteLine("Opening Excel Document (.xlsx)... Recalculating formula cells.");
+        public void Close() => Console.WriteLine("Caching runtime workbook grid and closing Excel Document.");
+    }
+
+    public abstract class DocumentFactory
+    {
+        public abstract IDocument CreateDocument();
+
+        public void ManageDocument Lifecycle()
+        {
+            IDocument doc = CreateDocument();
+            doc.Open();
+            doc.Close();
+            Console.WriteLine("-------------------------------------------");
+        }
+    }
+
+    public class WordDocumentFactory : DocumentFactory
+    {
+        public override IDocument CreateDocument() => new WordDocument();
+    }
+
+    public class PdfDocumentFactory : DocumentFactory
+    {
+        public override IDocument CreateDocument() => new PdfDocument();
+    }
+
+    public class ExcelDocumentFactory : DocumentFactory
+    {
+        public override IDocument CreateDocument() => new ExcelDocument();
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Factory Method Design Pattern ---\n");
+
+            DocumentFactory factory;
+
+            factory = new WordDocumentFactory();
+            factory.ManageDocumentLifecycle();
+
+            factory = new PdfDocumentFactory();
+            factory.ManageDocumentLifecycle();
+
+            factory = new ExcelDocumentFactory();
+            factory.ManageDocumentLifecycle();
+        }
+    }
+}
+
+//Exercise 3: Implementing the Builder Pattern
+
+using System;
+
+namespace BuilderPatternExample
+{
+    public class Computer
+    {
+        public string CPU { get; }
+        public string RAM { get; }
+        public string Storage { get; }
+        public bool IsGraphicsCardEnabled { get; }
+        public bool IsBluetoothEnabled { get; }
+
+        private Computer(ComputerBuilder builder)
+        {
+            this.CPU = builder.CPU;
+            this.RAM = builder.RAM;
+            this.Storage = builder.Storage;
+            this.IsGraphicsCardEnabled = builder.IsGraphicsCardEnabled;
+            this.IsBluetoothEnabled = builder.IsBluetoothEnabled;
+        }
+
+        public override string ToString()
+        {
+            return $"Computer Specs -> CPU: {CPU} | RAM: {RAM} | Storage: {Storage} | " +
+                   $"GPU: {(IsGraphicsCardEnabled ? "Yes" : "No")} | Bluetooth: {(IsBluetoothEnabled ? "Yes" : "No")}";
+        }
+
+        public class ComputerBuilder
+        {
+            public string CPU { get; private set; }
+            public string RAM { get; private set; }
+            public string Storage { get; private set; }
+            public bool IsGraphicsCardEnabled { get; private set; }
+            public bool IsBluetoothEnabled { get; private set; }
+
+            public ComputerBuilder(string cpu, string ram, string storage)
+            {
+                this.CPU = cpu;
+                this.RAM = ram;
+                this.Storage = storage;
+            }
+
+            public ComputerBuilder SetGraphicsCard(bool isEnabled)
+            {
+                this.IsGraphicsCardEnabled = isEnabled;
+                return this; 
+            }
+
+            public ComputerBuilder SetBluetooth(bool isEnabled)
+            {
+                this.IsBluetoothEnabled = isEnabled;
+                return this;
+            }
+
+            public Computer Build()
+            {
+                return new Computer(this);
+            }
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Builder Design Pattern ---\n");
+
+            Computer gamingPC = new Computer.ComputerBuilder("Intel Core i9", "32GB DDR5", "2TB NVMe SSD")
+                .SetGraphicsCard(true)
+                .SetBluetooth(true)
+                .Build();
+
+            Computer officePC = new Computer.ComputerBuilder("Intel Core i3", "8GB DDR4", "512GB SSD")
+                .Build();
+
+            Computer devPC = new Computer.ComputerBuilder("AMD Ryzen 7", "16GB DDR5", "1TB SSD")
+                .SetBluetooth(true)
+                .Build();
+
+            Console.WriteLine("[Gaming Profile]");
+            Console.WriteLine(gamingPC);
+
+            Console.WriteLine("\n[Office Profile]");
+            Console.WriteLine(officePC);
+
+            Console.WriteLine("\n[Developer Profile]");
+            Console.WriteLine(devPC);
+        }
+    }
+}
+
+//Exercise 4: Implementing the Adapter Pattern
+
+using System;
+
+namespace AdapterPatternExample
+{
+    public interface IPaymentProcessor
+    {
+        void ProcessPayment(double amount);
+    }
+
+    public class StripeGateway
+    {
+        public void ChargeAmount(double totalInDollars)
+        {
+            Console.WriteLine($"[Stripe Endpoint] Charging via Stripe API: ${totalInDollars:F2}");
+        }
+    }
+
+    public class PayPalGateway
+    {
+        public void SendPaymentRequest(double amountInCents)
+        {
+            Console.WriteLine($"[PayPal Endpoint] Dispatching API request for: {amountInCents} Cents");
+        }
+    }
+
+    public class StripeAdapter : IPaymentProcessor
+    {
+        private readonly StripeGateway _stripeService;
+
+        public StripeAdapter(StripeGateway stripeService)
+        {
+            _stripeService = stripeService;
+        }
+
+        public void ProcessPayment(double amount)
+        {
+            _stripeService.ChargeAmount(amount);
+        }
+    }
+
+    public class PayPalAdapter : IPaymentProcessor
+    {
+        private readonly PayPalGateway _payPalService;
+
+        public PayPalAdapter(PayPalGateway payPalService)
+        {
+            _payPalService = payPalService;
+        }
+
+        public void ProcessPayment(double amount)
+        {
+            double amountInCents = amount * 100;
+            _payPalService.SendPaymentRequest(amountInCents);
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Adapter Design Pattern ---\n");
+
+            double testCheckoutAmount = 149.99;
+
+            StripeGateway legacyStripe = new StripeGateway();
+            PayPalGateway legacyPayPal = new PayPalGateway();
+
+            IPaymentProcessor stripeProcessor = new StripeAdapter(legacyStripe);
+            IPaymentProcessor payPalProcessor = new PayPalAdapter(legacyPayPal);
+
+            Console.WriteLine("[Client Checkout Event A]");
+            stripeProcessor.ProcessPayment(testCheckoutAmount);
+
+            Console.WriteLine("\n[Client Checkout Event B]");
+            payPalProcessor.ProcessPayment(testCheckoutAmount);
+        }
+    }
+}
+
+//Exercise 5: Implementing the Decorator Pattern
+
+using System;
+
+namespace DecoratorPatternExample
+{
+    public interface INotifier
+    {
+        void Send(string message);
+    }
+
+    public class EmailNotifier : INotifier
+    {
+        public void Send(string message)
+        {
+            Console.WriteLine($"[Email Router] Dispatching core alert email -> Message: \"{message}\"");
+        }
+    }
+
+    public abstract class NotifierDecorator : INotifier
+    {
+        protected readonly INotifier _wrappedNotifier;
+
+        protected NotifierDecorator(INotifier notifier)
+        {
+            _wrappedNotifier = notifier;
+        }
+
+        public virtual void Send(string message)
+        {
+            _wrappedNotifier.Send(message);
+        }
+    }
+
+    public class SMSNotifierDecorator : NotifierDecorator
+    {
+        public SMSNotifierDecorator(INotifier notifier) : base(notifier) { }
+
+        public override void Send(string message)
+        {
+            base.Send(message); 
+            SendSMS(message);   
+        }
+
+        private void SendSMS(string message)
+        {
+            Console.WriteLine($"[SMS Gateway] Broadcasting mobile text alert -> Message: \"{message}\"");
+        }
+    }
+
+    public class SlackNotifierDecorator : NotifierDecorator
+    {
+        public SlackNotifierDecorator(INotifier notifier) : base(notifier) { }
+
+        public override void Send(string message)
+        {
+            base.Send(message);
+            SendSlackMessage(message);
+        }
+
+        private void SendSlackMessage(string message)
+        {
+            Console.WriteLine($"[Slack Webhook] Pushing real-time workspace alert -> Message: \"{message}\"");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Decorator Design Pattern ---\n");
+
+            string alertMessage = "Critical server outage detected on cluster node-04!";
+
+            Console.WriteLine("=== Profile A: Default Setup ===");
+            INotifier standardAlert = new EmailNotifier();
+            standardAlert.Send(alertMessage);
+
+            Console.WriteLine("\n=== Profile B: Enterprise Mobile Setup ===");
+            INotifier mobileAlert = new SMSNotifierDecorator(standardAlert);
+            mobileAlert.Send(alertMessage);
+
+            Console.WriteLine("\n=== Profile C: Full Broadcast Omnichannel Setup ===");
+            INotifier omniChannelAlert = new SlackNotifierDecorator(new SMSNotifierDecorator(new EmailNotifier()));
+            omniChannelAlert.Send(alertMessage);
+        }
+    }
+}
+
+//Exercise 6: Implementing the Proxy Pattern
+
+using System;
+using System.Threading;
+
+namespace ProxyPatternExample
+{
+    public interface IImage
+    {
+        void Display();
+    }
+
+    public class RealImage : IImage
+    {
+        private readonly string _remoteFileName;
+
+        public RealImage(string fileName)
+        {
+            _remoteFileName = fileName;
+            LoadFromRemoteServer();
+        }
+
+        private void LoadFromRemoteServer()
+        {
+            Console.Write($"[Server Downloader] Fetching '{_remoteFileName}' across the network...");
+            Thread.Sleep(2000); 
+            Console.WriteLine(" Done!");
+        }
+
+        public void Display()
+        {
+            Console.WriteLine($"[Renderer] Rendering image onto screen: '{_remoteFileName}'");
+        }
+    }
+
+    public class ProxyImage : IImage
+    {
+        private RealImage _realImage;
+        private readonly string _fileName;
+
+        public ProxyImage(string fileName)
+        {
+            _fileName = fileName;
+        }
+
+        public void Display()
+        {
+            if (_realImage == null)
+            {
+                Console.WriteLine($"[Proxy] First display request. Instantiating and caching RealImage...");
+                _realImage = new RealImage(_fileName);
+            }
+            else
+            {
+                Console.WriteLine($"[Proxy] Cache hit for '{_fileName}'. Bypassing remote download.");
+            }
+
+            _realImage.Display();
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Proxy Design Pattern ---\n");
+
+            IImage highResPhoto1 = new ProxyImage("annual_report_chart_2026.png");
+            IImage highResPhoto2 = new ProxyImage("cognizant_office_view.jpg");
+
+            Console.WriteLine("[System Status] Proxy configurations created successfully.\n");
+
+            Console.WriteLine("--- Requesting Photo 1 (First Time) ---");
+            highResPhoto1.Display();
+
+            Console.WriteLine("\n--- Requesting Photo 1 (Second Time) ---");
+            highResPhoto1.Display();
+
+            Console.WriteLine("\n--- Requesting Photo 2 (First Time) ---");
+            highResPhoto2.Display();
+        }
+    }
+}
+
+//Exercise 7: Implementing the Observer Pattern
+
+using System;
+using System.Collections.Generic;
+
+namespace ObserverPatternExample
+{
+    public interface IObserver
+    {
+        void Update(string stockSymbol, double stockPrice);
+    }
+
+    public interface IStock
+    {
+        void RegisterObserver(IObserver observer);
+        void DeregisterObserver(IObserver observer);
+        void NotifyObservers();
+    }
+
+    public class StockMarket : IStock
+    {
+        private readonly List<IObserver> _observers = new List<IObserver>();
+        private string _stockSymbol;
+        private double _stockPrice;
+
+        public void UpdateStockPrice(string stockSymbol, double stockPrice)
+        {
+            _stockSymbol = stockSymbol;
+            _stockPrice = stockPrice;
+            Console.WriteLine($"\n[Market Ticker] Update Event: {_stockSymbol} is now ${_stockPrice:F2}");
+            NotifyObservers();
+        }
+
+        public void RegisterObserver(IObserver observer)
+        {
+            if (!_observers.Contains(observer))
+            {
+                _observers.Add(observer);
+            }
+        }
+
+        public void DeregisterObserver(IObserver observer)
+        {
+            _observers.Remove(observer);
+        }
+
+        public void NotifyObservers()
+        {
+            foreach (var observer in _observers)
+            {
+                observer.Update(_stockSymbol, _stockPrice);
+            }
+        }
+    }
+
+    public class MobileApp : IObserver
+    {
+        private readonly string _userName;
+
+        public MobileApp(string userName)
+        {
+            _userName = userName;
+        }
+
+        public void Update(string stockSymbol, double stockPrice)
+        {
+            Console.WriteLine($"[Mobile Notification for {_userName}]: Push Alert -> {stockSymbol} ticker shifted to ${stockPrice:F2}");
+        }
+    }
+
+    public class WebApp : IObserver
+    {
+        private readonly string _dashboardId;
+
+        public WebApp(string dashboardId)
+        {
+            _dashboardId = dashboardId;
+        }
+
+        public void Update(string stockSymbol, double stockPrice)
+        {
+            Console.WriteLine($"[Web Dashboard {_dashboardId}]: Re-rendering charts live -> {stockSymbol}: ${stockPrice:F2}");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Observer Design Pattern ---");
+
+            StockMarket marketFeed = new StockMarket();
+
+            IObserver userDevice = new MobileApp("Rohan123");
+            IObserver adminPanel = new WebApp("Global-Analytics-01");
+
+            marketFeed.RegisterObserver(userDevice);
+            marketFeed.RegisterObserver(adminPanel);
+
+            marketFeed.UpdateStockPrice("CTS (Cognizant)", 78.50);
+            marketFeed.UpdateStockPrice("MSFT (Microsoft)", 420.25);
+
+            Console.WriteLine("\n[System Info] Removing Web Dashboard from subscriber stream...");
+            marketFeed.DeregisterObserver(adminPanel);
+
+            marketFeed.UpdateStockPrice("CTS (Cognizant)", 81.10);
+        }
+    }
+}
+
+//Exercise 8: Implementing the Strategy Pattern
+
+using System;
+
+namespace StrategyPatternExample
+{
+    public interface IPaymentStrategy
+    {
+        void Pay(double amount);
+    }
+
+    public class CreditCardPayment : IPaymentStrategy
+    {
+        private readonly string _name;
+        private readonly string _cardNumber;
+        private readonly string _cvv;
+        private readonly string _expiryDate;
+
+        public CreditCardPayment(string name, string cardNumber, string cvv, string expiryDate)
+        {
+            _name = name;
+            _cardNumber = cardNumber;
+            _cvv = cvv;
+            _expiryDate = expiryDate;
+        }
+
+        public void Pay(double amount)
+        {
+            string maskedCard = _cardNumber.Substring(_cardNumber.Length - 4);
+            Console.WriteLine($"[Merchant Gateway] Processing ${amount:F2} via Credit Card ending in *{maskedCard}.");
+        }
+    }
+
+    public class PayPalPayment : IPaymentStrategy
+    {
+        private readonly string _emailId;
+        private readonly string _password;
+
+        public PayPalPayment(string email, string password)
+        {
+            _emailId = email;
+            _password = password; 
+        }
+
+        public void Pay(double amount)
+        {
+            Console.WriteLine($"[PayPal Gateway] Authenticating user account '{_emailId}'... Authorized processing of ${amount:F2}.");
+        }
+    }
+
+    public class PaymentContext
+    {
+        private IPaymentStrategy _paymentStrategy;
+
+        public void SetPaymentStrategy(IPaymentStrategy strategy)
+        {
+            _paymentStrategy = strategy;
+        }
+
+        public void ExecutePayment(double amount)
+        {
+            if (_paymentStrategy == null)
+            {
+                Console.WriteLine("[Error] Payment processing failed: No operational strategy selected.");
+                return;
+            }
+            _paymentStrategy.Pay(amount);
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Strategy Design Pattern ---\n");
+
+            PaymentContext checkoutCart = new PaymentContext();
+            double totalCartValue = 2450.75;
+
+            Console.WriteLine("=== Order Checkout: Phase 1 ===");
+            IPaymentStrategy cardStrategy = new CreditCardPayment("Amit Sharma", "4321-5678-9876-5432", "123", "12/29");
+            checkoutCart.SetPaymentStrategy(cardStrategy);
+            checkoutCart.ExecutePayment(totalCartValue);
+
+            Console.WriteLine("\n=== Order Checkout: Phase 2 ===");
+            double nextOrderValue = 120.00;
+            IPaymentStrategy payPalStrategy = new PayPalPayment("amit.sharma@domain.com", "securePass123");
+            checkoutCart.SetPaymentStrategy(payPalStrategy); 
+            checkoutCart.ExecutePayment(nextOrderValue);
+        }
+    }
+}
+
+//Exercise 9: Implementing the Command Pattern
+
+using System;
+
+namespace CommandPatternExample
+{
+    public interface ICommand
+    {
+        void Execute();
+    }
+
+    public class Light
+    {
+        private readonly string _roomLocation;
+
+        public Light(string roomLocation)
+        {
+            _roomLocation = roomLocation;
+        }
+
+        public void TurnOn()
+        {
+            Console.WriteLine($"[Smart Appliance] {_roomLocation} Light is now turned ON.");
+        }
+
+        public void TurnOff()
+        {
+            Console.WriteLine($"[Smart Appliance] {_roomLocation} Light is now turned OFF.");
+        }
+    }
+
+    public class LightOnCommand : ICommand
+    {
+        private readonly Light _light;
+
+        public LightOnCommand(Light light)
+        {
+            _light = light;
+        }
+
+        public void Execute()
+        {
+            _light.TurnOn(); 
+        }
+    }
+
+    public class LightOffCommand : ICommand
+    {
+        private readonly Light _light;
+
+        public LightOffCommand(Light light)
+        {
+            _light = light;
+        }
+
+        public void Execute()
+        {
+            _light.TurnOff(); 
+        }
+    }
+
+    public class RemoteControl
+    {
+        private ICommand _currentCommand;
+
+        public void SetCommand(ICommand command)
+        {
+            _currentCommand = command;
+        }
+
+        public void PressButton()
+        {
+            if (_currentCommand == null)
+            {
+                Console.WriteLine("[System Error] Remote Warning: No command bound to this slot.");
+                return;
+            }
+            _currentCommand.Execute();
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Command Design Pattern ---\n");
+
+            Light livingRoomLight = new Light("Living Room");
+
+            ICommand switchOnAction = new LightOnCommand(livingRoomLight);
+            ICommand switchOffAction = new LightOffCommand(livingRoomLight);
+
+            RemoteControl smartRemote = new RemoteControl();
+
+            Console.WriteLine("=== Remote Activity Step 1 ===");
+            smartRemote.SetCommand(switchOnAction);
+            smartRemote.PressButton();
+
+            Console.WriteLine("\n=== Remote Activity Step 2 ===");
+            smartRemote.SetCommand(switchOffAction);
+            smartRemote.PressButton();
+        }
+    }
+}
+
+//Exercise 10: Implementing the MVC Pattern
+
+using System;
+
+namespace MVCPatternExample
+{
+    public class Student
+    {
+        public string Name { get; set; }
+        public string Id { get; set; }
+        public string Grade { get; set; }
+
+        public Student(string name, string id, string grade)
+        {
+            Name = name;
+            Id = id;
+            Grade = grade;
+        }
+    }
+
+    public class StudentView
+    {
+        public void DisplayStudentDetails(string studentName, string studentId, string studentGrade)
+        {
+            Console.WriteLine("\n==========================================");
+            Console.WriteLine("          STUDENT RECORD PROFILE          ");
+            Console.WriteLine("==========================================");
+            Console.WriteLine($"  Registration ID : {studentId}");
+            Console.WriteLine($"  Student Name    : {studentName}");
+            Console.WriteLine($"  Academic Grade  : {studentGrade}");
+            Console.WriteLine("==========================================\n");
+        }
+    }
+
+    public class StudentController
+    {
+        private readonly Student _model;
+        private readonly StudentView _view;
+
+        public StudentController(Student model, StudentView view)
+        {
+            _model = model;
+            _view = view;
+        }
+
+        public void SetStudentName(string name)
+        {
+            _model.Name = name;
+        }
+
+        public string GetStudentName()
+        {
+            return _model.Name;
+        }
+
+        public void SetStudentId(string id)
+        {
+            _model.Id = id;
+        }
+
+        public string GetStudentId()
+        {
+            return _model.Id;
+        }
+
+        public void SetStudentGrade(string grade)
+        {
+            _model.Grade = grade;
+        }
+
+        public string GetStudentGrade()
+        {
+            return _model.Grade;
+        }
+
+        public void UpdateView()
+        {
+            _view.DisplayStudentDetails(_model.Name, _model.Id, _model.Grade);
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Model-View-Controller (MVC) Pattern ---");
+
+            Student initialRecord = RetrieveStudentFromDatabase();
+
+            StudentView consoleUI = new StudentView();
+
+            StudentController appManager = new StudentController(initialRecord, consoleUI);
+
+            Console.WriteLine("\n[Rendering Profile Baseline Data]");
+            appManager.UpdateView();
+
+            Console.WriteLine("[System Update Event] Correcting grade spelling mistake...");
+            appManager.SetStudentGrade("A+");
+            appManager.SetStudentName("Rahul Sharma");
+
+            Console.WriteLine("\n[Re-Rendering Profile Following Changes]");
+            appManager.UpdateView();
+        }
+
+        private static Student RetrieveStudentFromDatabase()
+        {
+            return new Student("Rahul S.", "CTS-2026-9043", "A");
+        }
+    }
+}
+
+// Exercise 11: Implementing Dependency Injection
+
+using System;
+
+namespace DependencyInjectionExample
+{
+    public class Customer
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+
+        public Customer(int id, string name, string email)
+        {
+            Id = id;
+            Name = name;
+            Email = email;
+        }
+    }
+
+    public interface ICustomerRepository
+    {
+        Customer FindCustomerById(int id);
+    }
+
+    public class CustomerRepositoryImpl : ICustomerRepository
+    {
+        public Customer FindCustomerById(int id)
+        {
+            Console.WriteLine($"[Database Layer] Executing SQL query -> SELECT * FROM Customers WHERE Id = {id}");
+            
+            if (id == 101)
+            {
+                return new Customer(101, "Amit Sharma", "amit.sharma@domain.com");
+            }
+            return null;
+        }
+    }
+
+    public class CustomerService
+    {
+        private readonly ICustomerRepository _customerRepository;
+
+        public CustomerService(ICustomerRepository customerRepository)
+        {
+            _customerRepository = customerRepository;
+        }
+
+        public void DisplayCustomerDetails(int id)
+        {
+            Console.WriteLine($"\n[Service Layer] Fetching profile details for Customer ID: {id}...");
+            Customer customer = _customerRepository.FindCustomerById(id);
+
+            if (customer != null)
+            {
+                Console.WriteLine("==========================================");
+                Console.WriteLine("          CUSTOMER RECORD INQUIRY         ");
+                Console.WriteLine("==========================================");
+                Console.WriteLine($"  Customer ID    : {customer.Id}");
+                Console.WriteLine($"  Full Name      : {customer.Name}");
+                Console.WriteLine($"  Email Address  : {customer.Email}");
+                Console.WriteLine("==========================================\n");
+            }
+            else
+            {
+                Console.WriteLine($"[Service Error] Record associated with ID {id} does not exist inside repository storage system.");
+            }
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Testing Dependency Injection (DI) Pattern ---");
+
+            ICustomerRepository repositoryObj = new CustomerRepositoryImpl();
+
+            CustomerService userService = new CustomerService(repositoryObj);
+
+            userService.DisplayCustomerDetails(101);
+
+            userService.DisplayCustomerDetails(404);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
