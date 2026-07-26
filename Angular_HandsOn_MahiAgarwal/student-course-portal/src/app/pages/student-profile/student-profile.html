@@ -1,0 +1,17 @@
+<div style="padding: 20px; font-family: sans-serif; border: 1px dashed #aaa; margin-top: 20px;">
+  <h2>Student Profile Dashboard</h2>
+  <button (click)="refreshProfile()" style="padding: 6px 12px; margin-bottom: 15px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">
+    Refresh Enrolled List
+  </button>
+  
+  <h3>Your Enrolled Courses:</h3>
+  <div *ngIf="enrolledCourses.length === 0">
+    <p style="color: #c00;">No courses enrolled yet.</p>
+  </div>
+  
+  <ul *ngIf="enrolledCourses.length > 0">
+    <li *ngFor="let c of enrolledCourses" style="margin-bottom: 5px;">
+      <strong>{{ c.name }}</strong> ({{ c.code }}) - {{ c.credits }} Credits
+    </li>
+  </ul>
+</div>

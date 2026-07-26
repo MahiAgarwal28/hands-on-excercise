@@ -1,0 +1,27 @@
+<div [appHighlight]="'yellow'" [ngClass]="cardClasses" [ngStyle]="{'border-left': borderStyle}" style="border: 1px solid #ddd; padding: 15px; border-radius: 6px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); width: 220px; display: flex; flex-direction: column; gap: 6px; cursor: pointer;">
+  <h3 style="margin: 0; color: #007bff; font-size: 1.15rem;">{{ course.name }}</h3>
+  <p style="margin: 0; color: #555; font-size: 0.9rem;"><strong>ID:</strong> {{ course.id }}</p>
+  <p style="margin: 0; color: #555; font-size: 0.9rem;"><strong>Code:</strong> {{ course.code }}</p>
+  <p style="margin: 0; color: #28a745; font-size: 0.9rem;"><strong>Credits:</strong> {{ course.credits | creditLabel }}</p>
+  
+  <div [ngSwitch]="course.gradeStatus" style="margin-top: 5px; font-size: 0.85rem; font-weight: bold;">
+    <span *ngSwitchCase="'passed'" style="background-color: #28a745; color: white; padding: 4px 8px; border-radius: 4px;">Passed</span>
+    <span *ngSwitchCase="'failed'" style="background-color: #dc3545; color: white; padding: 4px 8px; border-radius: 4px;">Failed</span>
+    <span *ngSwitchCase="'pending'" style="background-color: #6c757d; color: white; padding: 4px 8px; border-radius: 4px;">Pending</span>
+  </div>
+
+  <div *ngIf="isExpanded" style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ddd; font-size: 0.85rem; color: #666;">
+    <p style="margin: 2px 0;"><strong>Syllabus:</strong> Core Module Architecture</p>
+    <p style="margin: 2px 0;"><strong>Passing Criteria:</strong> Minimum 50% score</p>
+  </div>
+
+  <div style="margin-top: auto; display: flex; flex-direction: column; gap: 6px;">
+    <button (click)="toggleExpand()" style="padding: 6px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+      {{ isExpanded ? 'Hide Details' : 'Show Details' }}
+    </button>
+
+    <button (click)="handleEnrollToggle()" [style.background-color]="isCurrentlyEnrolled ? '#dc3545' : '#007bff'" style="padding: 8px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+      {{ isCurrentlyEnrolled ? 'Unenroll' : 'Enroll' }}
+    </button>
+  </div>
+</div>

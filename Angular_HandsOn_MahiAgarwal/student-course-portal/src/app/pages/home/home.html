@@ -1,0 +1,24 @@
+<div style="padding: 20px; font-family: sans-serif;">
+  <h1>Welcome to the {{ portalName }}</h1>
+  <p>Manage your academic schedule, track your enrolled courses, and monitor your grade point average seamlessly.</p>
+  
+  <div style="display: flex; gap: 30px; margin-top: 20px; margin-bottom: 25px; background: #f4f4f4; padding: 15px; border-radius: 5px; width: fit-content;">
+    <div><strong>Courses Available:</strong> {{ availableCoursesCount }}</div>
+    <div><strong>Enrolled:</strong> 3</div>
+    <div><strong>GPA:</strong> 3.8</div>
+  </div>
+
+  <div style="margin-bottom: 25px;">
+    <button [disabled]="!isPortalActive" (click)="onEnrollClick()" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Enroll Now
+    </button>
+    <p style="color: green; font-weight: bold; margin-top: 5px;">{{ message }}</p>
+  </div>
+
+  <div style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px;">
+    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Search Courses:</label>
+    <input [(ngModel)]="searchTerm" placeholder="Type to search..." style="padding: 8px; width: 300px; border: 1px solid #ccc; border-radius: 4px;" />
+    <button (click)="onSearchTrigger()" style="margin-left: 10px; padding: 8px 16px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Search Route</button>
+    <p style="margin-top: 8px; color: #555;">Searching for: <strong>{{ searchTerm }}</strong></p>
+  </div>
+</div>

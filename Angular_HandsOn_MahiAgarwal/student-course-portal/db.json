@@ -1,0 +1,12 @@
+{
+  "courses": [
+    { "id": 101, "name": "Angular Basics (API)", "code": "ANG-101", "credits": 4, "gradeStatus": "passed" },
+    { "id": 102, "name": "Advanced TypeScript (API)", "code": "TS-201", "credits": 3, "gradeStatus": "pending" },
+    { "id": 103, "name": "RxJS State Management (API)", "code": "RXJS-301", "credits": 4, "gradeStatus": "failed" }
+  ],
+  "students": [
+    { "id": 1, "name": "Alice Johnson", "courseId": 101 },
+    { "id": 2, "name": "Bob Smith", "courseId": 101 },
+    { "id": 3, "name": "Charlie Brown", "courseId": 102 }
+  ]
+}

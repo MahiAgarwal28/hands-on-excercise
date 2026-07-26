@@ -1,0 +1,25 @@
+<div style="padding: 20px; font-family: sans-serif;">
+  <h2 style="border-bottom: 2px solid #eee; padding-bottom: 8px; color: #333;">Available Courses</h2>
+
+  <div *ngIf="errorMessage" style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 15px; font-weight: bold;">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading && !errorMessage">
+    <p style="font-size: 1.2rem; color: #666; font-weight: bold;">Loading courses...</p>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage">
+    <div *ngIf="courses.length > 0; else noCourses" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px; margin-bottom: 25px;">
+      <app-course-card 
+        *ngFor="let c of courses; trackBy: trackByCourseId" 
+        [course]="c" 
+        (enrollRequested)="onEnroll($event)">
+      </app-course-card>
+    </div>
+  </div>
+
+  <ng-template #noCourses>
+    <p style="font-size: 1.1rem; color: #dc3545; font-weight: bold;">No courses available.</p>
+  </ng-template>
+</div>
